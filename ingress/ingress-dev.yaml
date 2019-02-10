@@ -1,0 +1,21 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: api-dev
+  namespace: dev
+  labels:
+    environment: dev
+    tier: backend
+    component: app-server
+  annotations:
+    kubernetes.io/ingress.global-static-ip-name: "api-dev"
+    kubernetes.io/ingress.enable-cors: "true"
+    kubernetes.io/ingress.allow-http: "true" # should be changed to no on production
+spec:
+  rules:
+  - http:
+      paths:
+      - path: /v1/*
+        backend:
+          serviceName: app-microsvc
+          servicePort: 80

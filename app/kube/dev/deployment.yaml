@@ -1,0 +1,71 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: app-microsvc
+  namespace: dev
+spec:
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        app: app-microsvc
+        microservice: app
+        environment: dev
+        tier: backend
+        component: app-server
+    spec:
+      volumes:
+        - name: esp-nginx
+          configMap:
+            name: esp-nginx
+      containers:
+      - image: {{ESP_IMAGE}}
+        name: app-microsvc-esp
+        args: [
+          "-p", "8080",
+          "-a", "127.0.0.1:8081",
+          "-s", "api.app.com",
+          "-v", "2018-08-08r0",
+          "-n", "/etc/nginx/custom/nginx.conf",
+        ]
+        ports:
+        - containerPort: 8080
+        resources:
+          limits:
+            cpu: "0.05"
+        volumeMounts:
+        - mountPath: /etc/nginx/custom
+          name: esp-nginx
+          readOnly: true
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 5
+          periodSeconds: 30
+          timeoutSeconds: 10
+          successThreshold: 1
+          failureThreshold: 4
+      - image: {{APP_IMAGE}}
+        name: app-microsvc-cont
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8081
+        env:
+        - name: PRETTIFY_JSON
+          valueFrom:
+            configMapKeyRef:
+              name: config
+              key: prettifyJson
+        resources:
+          requests:
+            cpu: "0.15"
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8081
+          initialDelaySeconds: 5
+          periodSeconds: 30
+          timeoutSeconds: 10
+          successThreshold: 1
+          failureThreshold: 4
