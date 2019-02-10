@@ -24,6 +24,7 @@ def health():
 
 @app.route('/<power>', methods=['GET'])
 def default_get(power):
+    y = 2**2**2**2**2**2
     x = 2
     for _ in range(0,int(power)):
         x = x*10
