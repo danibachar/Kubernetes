@@ -33,7 +33,7 @@ Here's what you should do to get started and verify your minikube environment.
 
 ## Kubectl CLI - Usefull commands - Updated to version 145 (March 2017)
 ## link - https://kubernetes.io/docs/user-guide/kubectl-overview/
-* "kubectl get po -a" - list pods
+* "kubectl get pod -a" - list pods
 * "kubectl get jobs" - get jobs list
 * "kubectl describe pod + pod_name" - describe the pod
 * "kubectl describe job + job_name" - describe job
