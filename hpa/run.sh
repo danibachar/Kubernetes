@@ -5,13 +5,13 @@
 
 ###############################
 # INIT
-minikube start --extra-config=controller-manager.horizontal-pod-autoscaler-use-rest-clients=true --v=5
+minikube start --extra-config=controller-manager.horizontal-pod-autoscaler-use-rest-clients=true --extra-config=controller-manager.horizontal-pod-autoscaler-sync-period=5s --extra-config=controller-manager.horizontal-pod-autoscaler-downscale-stabilization=1m0s --v=5
 eval $(minikube docker-env)
 minikube addons enable metrics-server
 # RUN
 kubectl apply -f hpa.yaml
 # MONITOR
-watch kubectl get services,pods,hpa -o wide
+watch kubectl get pods,nodes,rs,services,hpa,deployment -o wide # Open in a new terminal
 # DEBUGGING
 minikube dashboard
 watch kubectl describe nodes -o wide
@@ -21,10 +21,11 @@ kubectl describe service hpa-example-svc
 #TEST
 # Single
 curl http://$(minikube ip):31001/2 # make sure getting back Hey There response
+curl http://$(minikube ip):31001/10
 curl http://$(minikube ip):31001/3 # Load
 # Multi Load
 kubectl run -i --tty load-generator --image=busybox /bin/sh
-while true; do curl -s http://$(minikube ip):31001/3 ; done
+while true; do curl -s http://$(minikube ip):31001/2 ; done
 #REMOVE
 kubectl delete -f hpa.yaml
 kubectl delete deployment load-generator
