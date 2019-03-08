@@ -12,7 +12,6 @@ spec:
         spec:
             containers:
             - name: hpa-example
-            # TODO - change to our image, with sample app we want
               image: danibachar/app:latest
               ports:
               - name: http-port

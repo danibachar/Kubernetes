@@ -8,14 +8,14 @@ metadata:
     tier: backend
     component: app-server
   annotations:
-    kubernetes.io/ingress.global-static-ip-name: "api-dev"
+#    kubernetes.io/ingress.global-static-ip-name: "api-dev"
     kubernetes.io/ingress.enable-cors: "true"
     kubernetes.io/ingress.allow-http: "true" # should be changed to no on production
 spec:
   rules:
   - http:
       paths:
-      - path: /v1/*
+      - path: /v1/hpa/*
         backend:
-          serviceName: app-microsvc
+          serviceName: hpa-example
           servicePort: 80

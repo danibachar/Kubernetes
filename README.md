@@ -114,6 +114,13 @@ node in each zone).
 
 Asia - `gcloud container clusters create "your_cluster_name" --zone "asia-northeast1-a" --machine-type "n1-standard-1" --num-nodes "1"`
 
+If you want to enable cluster autoscaling
+gcloud container clusters create "yoyo-attack" \
+--zone us-central1-a \
+--node-locations us-central1-a,us-central1-b,us-central1-f \
+--num-nodes 4 --enable-autoscaling --min-nodes 4 --max-nodes 8
+
+gcloud container clusters update yoyo-attack --zone us-central1-a --enable-autoscaling --min-nodes 4 --max-nodes 10
 
 The cost of this humble cluster is approximately $101/mo. Once the cluster is up
 and running there will probably be no need to ever tear it down, as long as it

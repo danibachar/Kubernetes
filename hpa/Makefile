@@ -11,7 +11,7 @@ cleanup:
 	delete-deploy
 	minikube stop
 
-deploy-local:
+deploy:
 	kubectl apply -f hpa.yaml
 
 delete-deploy:
