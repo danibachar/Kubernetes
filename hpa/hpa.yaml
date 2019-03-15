@@ -12,7 +12,7 @@ spec:
         spec:
             containers:
             - name: hpa-example
-              image: danibachar/app:latest
+              image: danibachar/app:latest_new_test
               ports:
               - name: http-port
                 containerPort: 8081
@@ -44,5 +44,5 @@ spec:
         kind: Deployment
         name: hpa-example
     minReplicas: 1
-    maxReplicas: 10
+    maxReplicas: 20
     targetCPUUtilizationPercentage: 50

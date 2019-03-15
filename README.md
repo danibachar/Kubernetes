@@ -117,8 +117,9 @@ Asia - `gcloud container clusters create "your_cluster_name" --zone "asia-northe
 If you want to enable cluster autoscaling
 gcloud container clusters create "yoyo-attack" \
 --zone us-central1-a \
---node-locations us-central1-a,us-central1-b,us-central1-f \
---num-nodes 4 --enable-autoscaling --min-nodes 4 --max-nodes 8
+--machine-type "n1-standard-1" \
+--num-nodes 3 --enable-autoscaling --min-nodes 3 --max-nodes 10 \
+--metadata disable-legacy-endpoints=true
 
 gcloud container clusters update yoyo-attack --zone us-central1-a --enable-autoscaling --min-nodes 4 --max-nodes 10
 
