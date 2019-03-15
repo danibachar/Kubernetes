@@ -118,7 +118,7 @@ If you want to enable cluster autoscaling
 gcloud container clusters create "yoyo-attack" \
 --zone us-central1-a \
 --machine-type "n1-standard-1" \
---num-nodes 5 --enable-autoscaling --min-nodes 5 --max-nodes 10 \
+--num-nodes 5 --enable-autoscaling --min-nodes 8 --max-nodes 15 \
 --metadata disable-legacy-endpoints=true
 
 gcloud container clusters update yoyo-attack --zone us-central1-a --enable-autoscaling --min-nodes 4 --max-nodes 10
