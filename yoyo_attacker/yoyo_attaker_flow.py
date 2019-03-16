@@ -253,7 +253,7 @@ def send_probe(url):
 def start_on_attack_phase():
     CONFIG['n']+=1
     rps = str(CONFIG['k'])
-    p = subprocess.Popen(['loadtest', END_POINT, '-t', '120', '-c', rps, '--rps', rps],
+    p = subprocess.Popen(['loadtest', END_POINT, '-t', '230', '-c', rps, '--rps', rps],
                          stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     return p
     # print(p.stderr)
@@ -346,7 +346,7 @@ def start():
                 #     print('Probe for scale Up finished (probably)')
 
 
-                if latest_attack_index + 100 <= index:
+                if latest_attack_index + 200 <= index:
                     is_running_attack = False
                     if attack_process:
                         try:
@@ -435,7 +435,7 @@ def start():
                 ])
                 w.writerow([
                     index, # time
-                    max(res_time,5), # probe response time - flatten weird results
+                    min(res_time,5), # probe response time - flatten weird results
                     # Attack
                     avg_attack_res_time,
                     mean_attack_res_time,
