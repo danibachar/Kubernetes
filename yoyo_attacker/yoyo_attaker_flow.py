@@ -397,9 +397,13 @@ def start():
                 name = 'hpa-example-autoscaler'
                 namespace = 'default'
                 api_response = api_instance.read_namespaced_horizontal_pod_autoscaler(name, namespace, pretty=True)
-                print(api_response.status)
                 status = api_response.status
-                print('current pods count {}'.format(status))
+                current_pods_coount = status.current_replicas
+                desire_pod_count = status.desired_replicas
+                cpu_load = status.current_cpu_utilization_percentage
+                last_scale_time = status.last_scale_time
+                print('{} , {} , {}, {}'.format(current_pods_coount,desire_pod_count,cpu_load,last_scale_time))
+                # print('current pods count {}'.format(status))
 
             # Get avarage time of the last x res and see if attack
             probe_time_tupples.append(res_time)
@@ -429,28 +433,28 @@ def start():
                     'is running attach',
 
                 ])
-            w.writerow([
-                index, # time
-                max(res_time,5), # probe response time - flatten weird results
-                # Attack
-                avg_attack_res_time,
-                mean_attack_res_time,
-                per95_attack_res_time,
-                per90_attack_res_time,
-                # probe
-                (sum(probe_time_tupples) / len(probe_time_tupples)), # total avg res time
-                mean(probe_time_tupples),  # total mea res time
-                np.percentile(np.array(probe_time_tupples),90),
-                np.percentile(np.array(probe_time_tupples), 95),
-                # HPA INFO
-                current_pods_coount,
-                desire_pod_count,
-                cpu_load,
-                last_scale_time,
-                # is
-                int(is_running_attack)*(-5) # is on attack flag
+                w.writerow([
+                    index, # time
+                    max(res_time,5), # probe response time - flatten weird results
+                    # Attack
+                    avg_attack_res_time,
+                    mean_attack_res_time,
+                    per95_attack_res_time,
+                    per90_attack_res_time,
+                    # probe
+                    (sum(probe_time_tupples) / len(probe_time_tupples)), # total avg res time
+                    mean(probe_time_tupples),  # total mea res time
+                    np.percentile(np.array(probe_time_tupples),90),
+                    np.percentile(np.array(probe_time_tupples), 95),
+                    # HPA INFO
+                    current_pods_coount,
+                    desire_pod_count,
+                    cpu_load,
+                    last_scale_time,
+                    # is
+                    int(is_running_attack)*(-5) # is on attack flag
 
-            ])
+                ])
     print('config - {}'.format(CONFIG))
 #loadtest http://35.226.116.34:31001/service -t 60 -c 10 --rps 4
 # start_yoyo_attack()
