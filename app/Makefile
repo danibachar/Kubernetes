@@ -30,8 +30,8 @@ deploy-local: build-local-dev
 	kubectl apply -f kube/local/minikube/deployment.yaml
 
 build-local-dev:
-	docker build -f kube/local/minikube/Dockerfile -t danibachar/app:latest ..
-	docker push danibachar/app:latest
+	docker build -f kube/local/minikube/Dockerfile -t danibachar/app:latest_test_2 ..
+	docker push danibachar/app:latest_test_2
 
 run-local-dev: build-local-dev
 	docker run --env-file ./kube/local/docker/env.list -p 80:8081 app:local
