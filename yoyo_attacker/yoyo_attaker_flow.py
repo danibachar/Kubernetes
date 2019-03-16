@@ -297,11 +297,11 @@ def start():
      
     We
     """
-    # Configs can be set in Configuration class directly or using helper utility
-    # config.load_kube_config(config_file='/Users/danielbachar/Documents/IDC/Kubernetes/yoyo_attacker/woven-phoenix-234610-96536085aad9.json')
-    # v1 = client.CoreV1Api()
-    # service = googleapiclient.discovery.build('container', 'v1')
-    # clusters_resource = service.projects().zones().clusters()
+
+    config.load_kube_config()
+    api_instance = client.AutoscalingV1Api()
+
+
     probe_time_tupples = []
     is_running_attack = False
     probs_times_under_attack = []
@@ -311,7 +311,11 @@ def start():
     avg_attack_res_time = 0
     per90_attack_res_time = 0
     per95_attack_res_time = 0
-    pods_count = 6
+
+    current_pods_coount = 6
+    desire_pod_count = 6
+    cpu_load = 0
+    last_scale_time = None
     with safe_open(csv_file_name, 'w') as f:
         w = csv.writer(f, delimiter=',')
         # Probe test
@@ -388,6 +392,15 @@ def start():
                     attack_process = start_on_attack_phase()
 
 
+            # Checking HPA every 60 sec
+            if index % 60 == 0:
+                name = 'hpa-example-autoscaler'
+                namespace = 'default'
+                api_response = api_instance.read_namespaced_horizontal_pod_autoscaler(name, namespace, pretty=True)
+                print(api_response.status)
+                status = api_response.status
+                print('current pods count {}'.format(status))
+
             # Get avarage time of the last x res and see if attack
             probe_time_tupples.append(res_time)
             CONFIG['r'] = sum(probe_time_tupples) / len(probe_time_tupples)
@@ -407,6 +420,11 @@ def start():
                     'probe packet mean response time',
                     'probe packet 95th percentile response time',
                     'probe packet 90th percentile response time',
+                    # HPA info
+                    'current_pods_coount',
+                    'desire_pod_count',
+                    'cpu_load',
+                    'last_scale_time',
                     #
                     'is running attach',
 
@@ -424,6 +442,11 @@ def start():
                 mean(probe_time_tupples),  # total mea res time
                 np.percentile(np.array(probe_time_tupples),90),
                 np.percentile(np.array(probe_time_tupples), 95),
+                # HPA INFO
+                current_pods_coount,
+                desire_pod_count,
+                cpu_load,
+                last_scale_time,
                 # is
                 int(is_running_attack)*(-5) # is on attack flag
 
