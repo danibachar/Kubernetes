@@ -343,7 +343,8 @@ def start():
                 per90_attack_res_time = np.percentile(np.array(probs_times_under_attack), 90)
                 print('avg res time under attack  = {}'.format(avg_attack_res_time))
                 print('mean res time under attack  = {}'.format(mean_attack_res_time))
-
+                print('95th res time under attack  = {}'.format(per95_attack_res_time))
+                print('90th res time under attack  = {}'.format(per90_attack_res_time))
                 # if mean_res_time and float(mean_res_time) < 4:
                 #     is_running_attack = False
                 #     if attack_process:
@@ -418,6 +419,11 @@ def start():
                 except Exception as e:
                     # TODO  -re authenticate
                     print('error trying to authenticate - {}'.format(e))
+                    p = subprocess.Popen(['kubectl', 'get', 'hpa'],
+                                         stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                    print('BEFPRE p wait')
+                    p.wait()
+                    print('ACFTER p wait')
                     api_instance = authenticate()
                     api_response = api_instance.read_namespaced_horizontal_pod_autoscaler(name, namespace, pretty=True)
 
