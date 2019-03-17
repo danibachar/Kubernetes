@@ -44,5 +44,5 @@ spec:
         kind: Deployment
         name: hpa-example
     minReplicas: 6
-    maxReplicas: 20
+    maxReplicas: 50
     targetCPUUtilizationPercentage: 50

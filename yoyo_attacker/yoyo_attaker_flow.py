@@ -176,7 +176,7 @@ END_POINT = 'http://130.211.200.247:31001/service'
 CONFIG = {
     'scaled_attack': False, # A new options - aas noticed in experiments
     'r': 0, # Average requests rate per unit time of legitimate clients
-    'k': 8, # power of attack
+    'k': 7, # power of attack
     'n': 0, # Number of attack cycles - Should be dynamic counter every on attack
     't': 0, # Cycle duration in seconds
     't_on': 80, # int, Time of on-attack phase in seconds, should be dynamic - we should be dynamic by the is_running_attack flag
