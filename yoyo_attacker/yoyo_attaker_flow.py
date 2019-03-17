@@ -408,7 +408,7 @@ def start():
 
 
             # Checking HPA every 60 sec
-            if index % 20 == 0:
+            if index % 10 == 0:
                 # if api_instance == None:
                 #     break
                 name = 'hpa-example-autoscaler'
@@ -474,10 +474,10 @@ def start():
                 # HPA INFO
                 current_pods_coount,
                 desire_pod_count,
-                cpu_load/-100,
+                cpu_load/-100, # Normelize
                 last_scale_time,
                 # is
-                int(is_running_attack)*(-5) # is on attack flag
+                int(is_running_attack)*(-5) # Nonmalize
 
                 ])
     print('config - {}'.format(CONFIG))
