@@ -356,7 +356,7 @@ def start():
                 #         except Exception as e:
                 #             print("kill attack fail - {}".format(e))
                 #     print('Probe for scale Up finished (probably)')
-                if round(per95_attack_res_time, 1) < 2.1 and  round(per95_attack_res_time, 1) > 2 and current_pods_coount > 6:
+                if index > 120 and cpu_load < 50:
                     is_running_attack = False
                     if attack_process:
                         try:
