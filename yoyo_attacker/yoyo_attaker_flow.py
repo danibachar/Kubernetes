@@ -87,7 +87,8 @@ import numpy as np
 
 response_times = []
 timeline = []
-csv_file_name = "/Users/danielbachar/Documents/IDC/Kubernetes/Tests/{}.table.csv".format(str(datetime.datetime.now()))
+dir_path = os.path.dirname(os.path.realpath(__file__))
+csv_file_name = str(dir_path)+"/{}.table.csv".format(str(datetime.datetime.now()))
 
 @sleep_and_retry
 @limits(calls=30, period=60)
@@ -297,9 +298,13 @@ def start():
      
     We
     """
-
+    # api_instance = None
+    # try:
     config.load_kube_config()
     api_instance = client.AutoscalingV1Api()
+    # except Exception as e:
+    #     print('error')
+
 
 
     probe_time_tupples = []
@@ -316,6 +321,7 @@ def start():
     desire_pod_count = 6
     cpu_load = 0
     last_scale_time = None
+    print(csv_file_name)
     with safe_open(csv_file_name, 'w') as f:
         w = csv.writer(f, delimiter=',')
         # Probe test
@@ -394,6 +400,8 @@ def start():
 
             # Checking HPA every 60 sec
             if index % 60 == 0:
+                # if api_instance == None:
+                #     break
                 name = 'hpa-example-autoscaler'
                 namespace = 'default'
                 api_response = api_instance.read_namespaced_horizontal_pod_autoscaler(name, namespace, pretty=True)
