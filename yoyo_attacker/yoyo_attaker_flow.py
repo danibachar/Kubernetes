@@ -176,7 +176,7 @@ END_POINT = 'http://130.211.200.247:31001/service'
 CONFIG = {
     'scaled_attack': False, # A new options - aas noticed in experiments
     'r': 0, # Average requests rate per unit time of legitimate clients
-    'k': 4, # power of attack
+    'k': 8, # power of attack
     'n': 0, # Number of attack cycles - Should be dynamic counter every on attack
     't': 0, # Cycle duration in seconds
     't_on': 80, # int, Time of on-attack phase in seconds, should be dynamic - we should be dynamic by the is_running_attack flag
@@ -330,7 +330,7 @@ def start():
     with safe_open(csv_file_name, 'w') as f:
         w = csv.writer(f, delimiter=',')
         # Probe test
-        for index in range(4000):
+        for index in range(5000):
             res_time = send_probe(END_POINT)
             # Checking
             if is_running_attack:
@@ -356,7 +356,7 @@ def start():
                 #         except Exception as e:
                 #             print("kill attack fail - {}".format(e))
                 #     print('Probe for scale Up finished (probably)')
-                if index > 120 and cpu_load < 50 and current_pods_coount > 6:
+                if index > 120 and cpu_load < 40 and current_pods_coount > 6:
                     is_running_attack = False
                     if attack_process:
                         try:
