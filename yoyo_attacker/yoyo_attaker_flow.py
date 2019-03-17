@@ -175,7 +175,7 @@ END_POINT = 'http://130.211.200.247:31001/service'
 CONFIG = {
     'scaled_attack': False, # A new options - aas noticed in experiments
     'r': 0, # Average requests rate per unit time of legitimate clients
-    'k': 2, # power of attack
+    'k': 4, # power of attack
     'n': 0, # Number of attack cycles - Should be dynamic counter every on attack
     't': 0, # Cycle duration in seconds
     't_on': 80, # int, Time of on-attack phase in seconds, should be dynamic - we should be dynamic by the is_running_attack flag
@@ -298,7 +298,7 @@ def start():
     We
     """
 
-    # config.load_kube_config()
+    config.load_kube_config()
     api_instance = client.AutoscalingV1Api()
 
 
@@ -385,7 +385,7 @@ def start():
                 # latest_attack_index
                 # We need to send a small burst of an attack and check for res_time > 2
                 # This is a hack - please use prob above- just need to parse the output of the stdout
-                elif latest_attack_index + 400 < index:
+                elif latest_attack_index + 500 < index:
                     is_running_attack = True
                     latest_attack_index = index
                     print('init attack on index = {}'.format(index))
@@ -403,7 +403,7 @@ def start():
                 cpu_load = status.current_cpu_utilization_percentage
                 last_scale_time = status.last_scale_time
                 print('{} , {} , {}, {}'.format(current_pods_coount,desire_pod_count,cpu_load,last_scale_time))
-                # print('current pods count {}'.format(status))
+                print('current pods count {}'.format(status))
 
             # Get avarage time of the last x res and see if attack
             probe_time_tupples.append(res_time)
@@ -433,54 +433,55 @@ def start():
                     'is running attach',
 
                 ])
-                w.writerow([
-                    index, # time
-                    min(res_time,5), # probe response time - flatten weird results
-                    # Attack
-                    avg_attack_res_time,
-                    mean_attack_res_time,
-                    per95_attack_res_time,
-                    per90_attack_res_time,
-                    # probe
-                    (sum(probe_time_tupples) / len(probe_time_tupples)), # total avg res time
-                    mean(probe_time_tupples),  # total mea res time
-                    np.percentile(np.array(probe_time_tupples),90),
-                    np.percentile(np.array(probe_time_tupples), 95),
-                    # HPA INFO
-                    current_pods_coount,
-                    desire_pod_count,
-                    cpu_load,
-                    last_scale_time,
-                    # is
-                    int(is_running_attack)*(-5) # is on attack flag
+
+            w.writerow([
+                index, # time
+                min(round(res_time, 1),5), # probe response time - flatten weird results
+                # Attack
+                avg_attack_res_time,
+                mean_attack_res_time,
+                per95_attack_res_time,
+                per90_attack_res_time,
+                # probe
+                (sum(probe_time_tupples) / len(probe_time_tupples)), # total avg res time
+                mean(probe_time_tupples),  # total mea res time
+                np.percentile(np.array(probe_time_tupples),90),
+                np.percentile(np.array(probe_time_tupples), 95),
+                # HPA INFO
+                current_pods_coount,
+                desire_pod_count,
+                cpu_load,
+                last_scale_time,
+                # is
+                int(is_running_attack)*(-5) # is on attack flag
 
                 ])
     print('config - {}'.format(CONFIG))
 #loadtest http://35.226.116.34:31001/service -t 60 -c 10 --rps 4
 # start_yoyo_attack()
-# start()
+start()
 
-from google.auth import compute_engine
-from google.cloud.container_v1 import ClusterManagerClient
-from kubernetes import client
-
-project_id = 'woven-phoenix-234610'
-zone = 'us-central1-a'
-cluster_id = 'yoyo-attack'
-
-credentials = compute_engine.Credentials()
-
-# cluster_manager_client = ClusterManagerClient(credentials=credentials)
-# cluster = cluster_manager_client.get_cluster(project_id, zone, cluster_id)
+# from google.auth import compute_engine
+# # from google.cloud.container_v1 import ClusterManagerClient
+# from kubernetes import client, config
 #
-configuration = client.Configuration()
-# configuration.host = f"https://{cluster.endpoint}:443"
-configuration.verify_ssl = False
-configuration.api_key = {"authorization": "Bearer " + credentials.token}
-client.Configuration.set_default(configuration)
-
-v1 = client.CoreV1Api()
-print("Listing pods with their IPs:")
-pods = v1.list_pod_for_all_namespaces(watch=False)
-for i in pods.items:
-    print("%s\t%s\t%s" % (i.status.pod_ip, i.metadata.namespace, i.metadata.name))
+# project_id = 'woven-phoenix-234610'
+# zone = 'us-central1-a'
+# cluster_id = 'yoyo-attack'
+#
+# credentials = compute_engine.Credentials()
+#
+# # cluster_manager_client = ClusterManagerClient(credentials=credentials)
+# # cluster = cluster_manager_client.get_cluster(project_id, zone, cluster_id)
+# #
+# configuration = client.Configuration()
+# # configuration.host = f"https://{cluster.endpoint}:443"
+# configuration.verify_ssl = False
+# configuration.api_key = {"authorization": "Bearer " + credentials.token}
+# client.Configuration.set_default(configuration)
+#
+# v1 = client.CoreV1Api()
+# print("Listing pods with their IPs:")
+# pods = v1.list_pod_for_all_namespaces(watch=False)
+# for i in pods.items:
+#     print("%s\t%s\t%s" % (i.status.pod_ip, i.metadata.namespace, i.metadata.name))
