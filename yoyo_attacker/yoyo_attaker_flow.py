@@ -330,7 +330,7 @@ def start():
     with safe_open(csv_file_name, 'w') as f:
         w = csv.writer(f, delimiter=',')
         # Probe test
-        for index in range(2500):
+        for index in range(4000):
             res_time = send_probe(END_POINT)
             # Checking
             if is_running_attack:
@@ -356,7 +356,7 @@ def start():
                 #         except Exception as e:
                 #             print("kill attack fail - {}".format(e))
                 #     print('Probe for scale Up finished (probably)')
-                if round(per95_attack_res_time, 1) < 2.5 and  latest_attack_index + 20 <= index and current_pods_coount > 6:
+                if round(per95_attack_res_time, 1) < 2.1 and  round(per95_attack_res_time, 1) > 2 and current_pods_coount > 6:
                     is_running_attack = False
                     if attack_process:
                         try:
