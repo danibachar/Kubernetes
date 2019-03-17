@@ -300,12 +300,15 @@ def start():
     """
     # api_instance = None
     # try:
-    config.load_kube_config()
-    api_instance = client.AutoscalingV1Api()
+    def authenticate():
+        config.load_kube_config(config_file='/home/danibacharfreegcp/.kube/config')
+        api_instance = client.AutoscalingV1Api()
+        return api_instance
     # except Exception as e:
     #     print('error')
 
 
+    api_instance = authenticate()
 
     probe_time_tupples = []
     is_running_attack = False
@@ -391,11 +394,17 @@ def start():
                 # latest_attack_index
                 # We need to send a small burst of an attack and check for res_time > 2
                 # This is a hack - please use prob above- just need to parse the output of the stdout
-                elif latest_attack_index + 500 < index:
+                if current_pods_coount == 6 and index > 50:
                     is_running_attack = True
                     latest_attack_index = index
-                    print('init attack on index = {}'.format(index))
+                    print('init attack by POD COUNTon index = {}'.format(index))
                     attack_process = start_on_attack_phase()
+
+                # if latest_attack_index + 500 < index:
+                #     is_running_attack = True
+                #     latest_attack_index = index
+                #     print('init attack on index = {}'.format(index))
+                #     attack_process = start_on_attack_phase()
 
 
             # Checking HPA every 60 sec
@@ -404,7 +413,14 @@ def start():
                 #     break
                 name = 'hpa-example-autoscaler'
                 namespace = 'default'
-                api_response = api_instance.read_namespaced_horizontal_pod_autoscaler(name, namespace, pretty=True)
+                try:
+                    api_response = api_instance.read_namespaced_horizontal_pod_autoscaler(name, namespace, pretty=True)
+                except Exception as e:
+                    # TODO  -re authenticate
+                    print('error trying to authenticate - {}'.format(e))
+                    api_instance = authenticate()
+                    api_response = api_instance.read_namespaced_horizontal_pod_autoscaler(name, namespace, pretty=True)
+
                 status = api_response.status
                 current_pods_coount = status.current_replicas
                 desire_pod_count = status.desired_replicas
@@ -458,7 +474,7 @@ def start():
                 # HPA INFO
                 current_pods_coount,
                 desire_pod_count,
-                cpu_load,
+                cpu_load/-100,
                 last_scale_time,
                 # is
                 int(is_running_attack)*(-5) # is on attack flag
