@@ -176,7 +176,7 @@ END_POINT = 'http://130.211.200.247:31001/service'
 CONFIG = {
     'scaled_attack': False, # A new options - aas noticed in experiments
     'r': 0, # Average requests rate per unit time of legitimate clients
-    'k': 4, # power of attack
+    'k': 3, # power of attack
     'n': 0, # Number of attack cycles - Should be dynamic counter every on attack
     't': 0, # Cycle duration in seconds
     't_on': 80, # int, Time of on-attack phase in seconds, should be dynamic - we should be dynamic by the is_running_attack flag
@@ -254,7 +254,7 @@ def send_probe(url):
 def start_on_attack_phase():
     CONFIG['n']+=1
     rps = str(CONFIG['k'])
-    p = subprocess.Popen(['loadtest', END_POINT, '-t', '230', '-c', rps, '--rps', rps],
+    p = subprocess.Popen(['loadtest', END_POINT, '-t', '1000', '-c', rps, '--rps', rps],
                          stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     return p
     # print(p.stderr)
@@ -330,7 +330,7 @@ def start():
     with safe_open(csv_file_name, 'w') as f:
         w = csv.writer(f, delimiter=',')
         # Probe test
-        for index in range(1500):
+        for index in range(2500):
             res_time = send_probe(END_POINT)
             # Checking
             if is_running_attack:
@@ -356,9 +356,7 @@ def start():
                 #         except Exception as e:
                 #             print("kill attack fail - {}".format(e))
                 #     print('Probe for scale Up finished (probably)')
-
-
-                if latest_attack_index + 200 <= index:
+                if round(per95_attack_res_time, 1) < 2.5 and  latest_attack_index + 20 <= index and current_pods_coount > 6:
                     is_running_attack = False
                     if attack_process:
                         try:
@@ -367,7 +365,17 @@ def start():
                             attack_process = None
                         except Exception as e:
                             print("kill attack fail - {}".format(e))
-                    print('Attack is over')
+
+                # if latest_attack_index + 200 <= index:
+                #     is_running_attack = False
+                #     if attack_process:
+                #         try:
+                #             print("killing attack process - {}".format(attack_process))
+                #             attack_process.kill()
+                #             attack_process = None
+                #         except Exception as e:
+                #             print("kill attack fail - {}".format(e))
+                #     print('Attack is over')
 
             else:
                 # Resting avg
