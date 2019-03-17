@@ -399,7 +399,7 @@ def start():
 
 
             # Checking HPA every 60 sec
-            if index % 60 == 0:
+            if index % 20 == 0:
                 # if api_instance == None:
                 #     break
                 name = 'hpa-example-autoscaler'
@@ -411,7 +411,7 @@ def start():
                 cpu_load = status.current_cpu_utilization_percentage
                 last_scale_time = status.last_scale_time
                 print('{} , {} , {}, {}'.format(current_pods_coount,desire_pod_count,cpu_load,last_scale_time))
-                print('current pods count {}'.format(status))
+                # print('current pods count {}'.format(status))
 
             # Get avarage time of the last x res and see if attack
             probe_time_tupples.append(res_time)
