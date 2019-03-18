@@ -112,10 +112,6 @@ def safe_open(file_name_with_dierctory:str, permision="wb+"):
 
 	return open(file_name_with_dierctory, permision)
 
-def send_probe():
-    # TODO - send probe packet to diccover when scale up is done?
-    return
-
 
 def start_yoyo_attack(k=1, n=1, t=120, t_on=120, t_off=120, i_up=120, i_down=120, w_up=120, w_down=120):
     """ Regular working with the server
@@ -304,13 +300,14 @@ def start():
         config.load_kube_config(config_file='/home/danibacharfreegcp/.kube/config')
         client.configuration.api_key = {
             "authorization": "Bearer eyJhbGciOiJSUzI1NiIsImtpZCI6IiJ9.eyJpc3MiOiJrdWJlcm5ldGVzL3NlcnZpY2VhY2NvdW50Iiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9uYW1lc3BhY2UiOiJkZWZhdWx0Iiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9zZWNyZXQubmFtZSI6ImRlZmF1bHQtdG9rZW4tYmxtd2wiLCJrdWJlcm5ldGVzLmlvL3NlcnZpY2VhY2NvdW50L3NlcnZpY2UtYWNjb3VudC5uYW1lIjoiZGVmYXVsdCIsImt1YmVybmV0ZXMuaW8vc2VydmljZWFjY291bnQvc2VydmljZS1hY2NvdW50LnVpZCI6Ijg3NDAzMWI1LTQ3ZjktMTFlOS1iMDcwLTQyMDEwYTgwMDE2ZiIsInN1YiI6InN5c3RlbTpzZXJ2aWNlYWNjb3VudDpkZWZhdWx0OmRlZmF1bHQifQ.BGn9dM2B2SJ8Ixkc8sS6v2oyP9xVM5dX57pJsyzYnOWqQtsIxisjqj5uq8k1sxhA0qEVyjFU11FLe4wDki2jxvxejcOo56MeN5wv7PeT_JAAQVso9ifFPDCtaBH-4gvJGbB8ukqADktOa9JXGFO5srYIKiCtsrOAgRbVYJLIzNruxbp84PqMp6U41lCqmu_xQ8QDyFetz-UKtN1hgOMj7gAmjInqEsSEaFlTesW5gk5WSwnICM8rAC0iOBF0ayQYB9yIoMnH-W2c3cfwDGqcXfm3jhuLz2vwPd9BlpaGk_KvN4vcKbLUUCCqJKml15-HgWMwHru-6jY8ADbngf6Qpg"}
-        api_instance = client.AutoscalingV1Api()
-        return api_instance
+        auto_scale_api = client.AutoscalingV1Api()
+        cluster_api = client.CoreV1Api()
+        return auto_scale_api, cluster_api
     # except Exception as e:
     #     print('error')
 
 
-    api_instance = authenticate()
+    autoscale_api_instance, cluster_api = authenticate()
 
     probe_time_tupples = []
     is_running_attack = False
@@ -323,6 +320,7 @@ def start():
     per95_attack_res_time = 0
 
     current_pods_coount = 6
+    nodes_count = 6
     desire_pod_count = 6
     cpu_load = 0
     last_scale_time = None
@@ -420,12 +418,11 @@ def start():
 
             # Checking HPA every 60 sec
             if index % 10 == 0:
-                # if api_instance == None:
-                #     break
                 name = 'hpa-example-autoscaler'
                 namespace = 'default'
                 try:
-                    api_response = api_instance.read_namespaced_horizontal_pod_autoscaler(name, namespace, pretty=True)
+                    api_response = autoscale_api_instance.read_namespaced_horizontal_pod_autoscaler(name, namespace, pretty=True)
+                    nodes_count = list(cluster_api.list_node().items)
                 except Exception as e:
                     # TODO  -re authenticate
                     print('error trying to authenticate - {}'.format(e))
@@ -434,16 +431,15 @@ def start():
                     print('BEFPRE p wait')
                     p.wait()
                     print('ACFTER p wait')
-                    api_instance = authenticate()
-                    api_response = api_instance.read_namespaced_horizontal_pod_autoscaler(name, namespace, pretty=True)
+                    autoscale_api_instance, cluster_api = authenticate()
+                    api_response = autoscale_api_instance.read_namespaced_horizontal_pod_autoscaler(name, namespace, pretty=True)
+                    nodes_count = list(cluster_api.list_node().items)
 
                 status = api_response.status
                 current_pods_coount = status.current_replicas
                 desire_pod_count = status.desired_replicas
                 cpu_load = status.current_cpu_utilization_percentage
                 last_scale_time = status.last_scale_time
-                print('{} , {} , {}, {}'.format(current_pods_coount,desire_pod_count,cpu_load,last_scale_time))
-                # print('current pods count {}'.format(status))
 
             # Get avarage time of the last x res and see if attack
             probe_time_tupples.append(res_time)
@@ -468,6 +464,7 @@ def start():
                     'current_pods_coount',
                     'desire_pod_count',
                     'cpu_load',
+                    'node_count',
                     'last_scale_time',
                     #
                     'is running attach',
@@ -491,6 +488,7 @@ def start():
                 current_pods_coount,
                 desire_pod_count,
                 cpu_load/-100, # Normelize
+                nodes_count,
                 last_scale_time,
                 # is
                 int(is_running_attack)*(-5) # Nonmalize
