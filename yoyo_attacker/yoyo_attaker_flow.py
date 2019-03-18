@@ -422,7 +422,7 @@ def start():
                 namespace = 'default'
                 try:
                     api_response = autoscale_api_instance.read_namespaced_horizontal_pod_autoscaler(name, namespace, pretty=True)
-                    nodes_count = list(cluster_api.list_node().items)
+                    nodes_count = len(list(cluster_api.list_node().items))
                 except Exception as e:
                     # TODO  -re authenticate
                     print('error trying to authenticate - {}'.format(e))
@@ -433,7 +433,7 @@ def start():
                     print('ACFTER p wait')
                     autoscale_api_instance, cluster_api = authenticate()
                     api_response = autoscale_api_instance.read_namespaced_horizontal_pod_autoscaler(name, namespace, pretty=True)
-                    nodes_count = list(cluster_api.list_node().items)
+                    nodes_count = len(list(cluster_api.list_node().items))
 
                 status = api_response.status
                 current_pods_coount = status.current_replicas
