@@ -440,7 +440,6 @@ def start():
                 desire_pod_count = status.desired_replicas
                 cpu_load = status.current_cpu_utilization_percentage
                 last_scale_time = status.last_scale_time
-                print('{}'.format(nodes_count))
 
             # Get avarage time of the last x res and see if attack
             probe_time_tupples.append(res_time)
