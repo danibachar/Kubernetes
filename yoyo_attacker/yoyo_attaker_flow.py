@@ -207,7 +207,7 @@ def start():
                 # latest_attack_index
                 # We need to send a small burst of an attack and check for res_time > 2
                 # This is a hack - please use prob above- just need to parse the output of the stdout
-                if current_pods_coount == 6 and index > 50:
+                if nodes_count == 6 and index > 50:
                     is_running_attack = True
                     latest_attack_index = index
                     print('init attack by POD COUNTon index = {}'.format(index))
