@@ -11,6 +11,9 @@ We've made an effort to adhere to proper Python coding style:
 * PEP 484 -- [Type Hints](https://www.python.org/dev/peps/pep-0484/#suggested-syntax-for-python-2-7-and-straddling-code)
 
 
+# For load testing
+install - npm install -g loadtest
+
 Setting Up A Local Development Environment
 ------------------------------------------
 In order to hit the ground running we recommend using [minikube](https://github.com/kubernetes/minikube), which is a
