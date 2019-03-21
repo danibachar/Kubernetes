@@ -39,45 +39,19 @@ CONFIG = {
     'i_up': 0, # int, Threshold interval for scale-up in seconds. - NOT CONTROLED IN KUBERNETES
     'i_down': 0, # int, Threshold interval for scale-down in seconds. - NOT CONTROLED IN KUBERNETES
     'w_up': 0 #
-    # SCALE_DOWN_TEST_CONFIG: {
-    #
-    # }
-
 }
-
-""" Regular working with the server
-
- Construct a Resource object for interacting with an API. The serviceName and
- version are the names from the Discovery service.
-
- Args:
-   k: int, power of attack
-   n: int, Number of attack cycles
-   t: int, Cycle duration in seconds
-   t_on: int, Time of on-attack phase in seconds
-   t_off: int, Time of off-attack phase in seconds
-   
-   i_up: int, Threshold interval for scale-up in seconds.
-   i_down: int, Threshold interval for scale-down in seconds.
-   w_up: int, Threshold interval for scale-up in seconds.
-   w_down: int, Threshold interval for scale-up in seconds.
-
- Returns:
-   File name with the statistics on the attack
- """
 
 # Probe packet
 @sleep_and_retry
 @limits(calls=1, period=1)
 def send_probe(url):
     response = requests.get(url)
-
     if response.status_code != 200:
         res_time = 5
-        print('500 error')
     else:
         res_time = response.elapsed.total_seconds()
     return res_time
+
 
 def start_on_attack_phase():
     CONFIG['n']+=1
@@ -85,8 +59,6 @@ def start_on_attack_phase():
     p = subprocess.Popen(['loadtest', END_POINT, '-t', '1000', '-c', rps, '--rps', rps],
                          stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     return p
-    # print(p.stderr)
-    # print(p.stdout)
 
 def scale_down_is_over_test():
     p = subprocess.Popen(['loadtest', END_POINT, '-t', '5', '-c', '10', '--rps', '10'],
