@@ -62,7 +62,7 @@ class Attacker(object):
         print('ATTACK IS ON')
 
     def stop_attack(self):
-        self.is_running_attack = False
+        self.is_attack_on = False
         if self.attack_process:
             try:
                 self.attack_process.kill()
