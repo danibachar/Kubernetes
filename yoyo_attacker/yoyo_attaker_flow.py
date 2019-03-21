@@ -106,8 +106,6 @@ def start():
     # try:
     def authenticate():
         config.load_kube_config(config_file=os.path.join(os.path.expanduser('~'), '.kube/config'))
-        client.configuration.api_key = {
-            "authorization": "Bearer eyJhbGciOiJSUzI1NiIsImtpZCI6IiJ9.eyJpc3MiOiJrdWJlcm5ldGVzL3NlcnZpY2VhY2NvdW50Iiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9uYW1lc3BhY2UiOiJkZWZhdWx0Iiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9zZWNyZXQubmFtZSI6ImRlZmF1bHQtdG9rZW4tYmxtd2wiLCJrdWJlcm5ldGVzLmlvL3NlcnZpY2VhY2NvdW50L3NlcnZpY2UtYWNjb3VudC5uYW1lIjoiZGVmYXVsdCIsImt1YmVybmV0ZXMuaW8vc2VydmljZWFjY291bnQvc2VydmljZS1hY2NvdW50LnVpZCI6Ijg3NDAzMWI1LTQ3ZjktMTFlOS1iMDcwLTQyMDEwYTgwMDE2ZiIsInN1YiI6InN5c3RlbTpzZXJ2aWNlYWNjb3VudDpkZWZhdWx0OmRlZmF1bHQifQ.BGn9dM2B2SJ8Ixkc8sS6v2oyP9xVM5dX57pJsyzYnOWqQtsIxisjqj5uq8k1sxhA0qEVyjFU11FLe4wDki2jxvxejcOo56MeN5wv7PeT_JAAQVso9ifFPDCtaBH-4gvJGbB8ukqADktOa9JXGFO5srYIKiCtsrOAgRbVYJLIzNruxbp84PqMp6U41lCqmu_xQ8QDyFetz-UKtN1hgOMj7gAmjInqEsSEaFlTesW5gk5WSwnICM8rAC0iOBF0ayQYB9yIoMnH-W2c3cfwDGqcXfm3jhuLz2vwPd9BlpaGk_KvN4vcKbLUUCCqJKml15-HgWMwHru-6jY8ADbngf6Qpg"}
         auto_scale_api = client.AutoscalingV1Api()
         cluster_api = client.CoreV1Api()
         return auto_scale_api, cluster_api
