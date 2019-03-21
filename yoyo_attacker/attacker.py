@@ -1,6 +1,7 @@
 import subprocess
-from ratelimit import limits, sleep_and_retry
+
 import requests
+from ratelimit import limits, sleep_and_retry
 
 """ Regular working with the server
 
@@ -22,6 +23,7 @@ import requests
  Returns:
    File name with the statistics on the attack
  """
+
 
 class Attacker(object):
     """docstring for Tester."""

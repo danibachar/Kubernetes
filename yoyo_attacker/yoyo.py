@@ -1,8 +1,7 @@
-from locust import HttpLocust, TaskSet, task
-from datetime import datetime
-import json
-import subprocess
 from time import time
+
+from locust import HttpLocust, TaskSet, task
+
 
 class UserBehavior(TaskSet):
     @task(1)
@@ -18,7 +17,7 @@ class ConstantWaitTimeTaskSet(TaskSet):
         self._time_waited = 0
 
     def wait(self):
-        t = max(0, self.wait_time - self._time_waited) /  1000.0
+        t = max(0, self.wait_time - self._time_waited) / 1000.0
         self._sleep(t)
         self._time_waited = 0
 
@@ -31,6 +30,7 @@ class ConstantWaitTimeTaskSet(TaskSet):
     @task(1)
     def my_test(self):
         res = self.client.get("/4")
+
 
 class WebsiteUser(HttpLocust):
     task_set = UserBehavior

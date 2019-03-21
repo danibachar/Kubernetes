@@ -1,45 +1,47 @@
-from ratelimit import limits, sleep_and_retry
-import requests
+import csv
 import datetime
+import errno
+import math
 import os
 import subprocess
-import sys
-import csv
-from kubernetes import client, config
-from multiprocessing import Pool
 from statistics import mean
-import math
-from threading import Timer
+
 import numpy as np
+import requests
+from kubernetes import client, config
+from ratelimit import limits, sleep_and_retry
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
-csv_file_name = str(dir_path)+"/{}.table.csv".format(str(datetime.datetime.now()))
+csv_file_name = str(dir_path) + "/{}.table.csv".format(str(datetime.datetime.now()))
 
-def safe_open(file_name_with_dierctory:str, permision="wb+"):
-	if not os.path.exists(os.path.dirname(file_name_with_dierctory)):
-	    try:
-	        os.makedirs(os.path.dirname(file_name_with_dierctory))
-	    except OSError as exc: # Guard against race condition
-	        if exc.errno != errno.EEXIST:
-	            raise
 
-	return open(file_name_with_dierctory, permision)
+def safe_open(file_name_with_dierctory: str, permision="wb+"):
+    if not os.path.exists(os.path.dirname(file_name_with_dierctory)):
+        try:
+            os.makedirs(os.path.dirname(file_name_with_dierctory))
+        except OSError as exc:  # Guard against race condition
+            if exc.errno != errno.EEXIST:
+                raise
+
+    return open(file_name_with_dierctory, permision)
 
 
 # GLOBALS
 END_POINT = 'http://130.211.200.247:31001/service'
 CONFIG = {
-    'scaled_attack': False, # A new options - aas noticed in experiments
-    'r': 0, # Average requests rate per unit time of legitimate clients
-    'k': 3, # power of attack
-    'n': 0, # Number of attack cycles - Should be dynamic counter every on attack
-    't': 0, # Cycle duration in seconds
-    't_on': 80, # int, Time of on-attack phase in seconds, should be dynamic - we should be dynamic by the is_running_attack flag
-    't_off': 0,# int, Time of off-attack phase in seconds - count dynamically
-    'i_up': 0, # int, Threshold interval for scale-up in seconds. - NOT CONTROLED IN KUBERNETES
-    'i_down': 0, # int, Threshold interval for scale-down in seconds. - NOT CONTROLED IN KUBERNETES
-    'w_up': 0 #
+    'scaled_attack': False,  # A new options - aas noticed in experiments
+    'r': 0,  # Average requests rate per unit time of legitimate clients
+    'k': 3,  # power of attack
+    'n': 0,  # Number of attack cycles - Should be dynamic counter every on attack
+    't': 0,  # Cycle duration in seconds
+    't_on': 80,
+    # int, Time of on-attack phase in seconds, should be dynamic - we should be dynamic by the is_running_attack flag
+    't_off': 0,  # int, Time of off-attack phase in seconds - count dynamically
+    'i_up': 0,  # int, Threshold interval for scale-up in seconds. - NOT CONTROLED IN KUBERNETES
+    'i_down': 0,  # int, Threshold interval for scale-down in seconds. - NOT CONTROLED IN KUBERNETES
+    'w_up': 0  #
 }
+
 
 # Probe packet
 @sleep_and_retry
@@ -60,13 +62,14 @@ def start_on_attack_phase():
                          stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     return p
 
+
 def scale_down_is_over_test():
     p = subprocess.Popen(['loadtest', END_POINT, '-t', '5', '-c', '10', '--rps', '10'],
                          stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     lines = list(iter(p.stdout.readline, b''))
     output = str(lines[-1]).split(' ')
     ms_index = output.index('ms')
-    res = float(output[ms_index-1]) / 1000
+    res = float(output[ms_index - 1]) / 1000
     # print('scale prob longest time {}'.format(res))/
     print('scale prob longest time {}'.format(res))
     # for line in iter(p.stdout.readline, b''):
@@ -98,18 +101,19 @@ def start():
      
     We
     """
+
     # api_instance = None
     # try:
     def authenticate():
-        config.load_kube_config(config_file='/home/danibacharfreegcp/.kube/config')
+        config.load_kube_config(config_file=os.path.join(os.path.expanduser('~'), '.kube/config'))
         client.configuration.api_key = {
             "authorization": "Bearer eyJhbGciOiJSUzI1NiIsImtpZCI6IiJ9.eyJpc3MiOiJrdWJlcm5ldGVzL3NlcnZpY2VhY2NvdW50Iiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9uYW1lc3BhY2UiOiJkZWZhdWx0Iiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9zZWNyZXQubmFtZSI6ImRlZmF1bHQtdG9rZW4tYmxtd2wiLCJrdWJlcm5ldGVzLmlvL3NlcnZpY2VhY2NvdW50L3NlcnZpY2UtYWNjb3VudC5uYW1lIjoiZGVmYXVsdCIsImt1YmVybmV0ZXMuaW8vc2VydmljZWFjY291bnQvc2VydmljZS1hY2NvdW50LnVpZCI6Ijg3NDAzMWI1LTQ3ZjktMTFlOS1iMDcwLTQyMDEwYTgwMDE2ZiIsInN1YiI6InN5c3RlbTpzZXJ2aWNlYWNjb3VudDpkZWZhdWx0OmRlZmF1bHQifQ.BGn9dM2B2SJ8Ixkc8sS6v2oyP9xVM5dX57pJsyzYnOWqQtsIxisjqj5uq8k1sxhA0qEVyjFU11FLe4wDki2jxvxejcOo56MeN5wv7PeT_JAAQVso9ifFPDCtaBH-4gvJGbB8ukqADktOa9JXGFO5srYIKiCtsrOAgRbVYJLIzNruxbp84PqMp6U41lCqmu_xQ8QDyFetz-UKtN1hgOMj7gAmjInqEsSEaFlTesW5gk5WSwnICM8rAC0iOBF0ayQYB9yIoMnH-W2c3cfwDGqcXfm3jhuLz2vwPd9BlpaGk_KvN4vcKbLUUCCqJKml15-HgWMwHru-6jY8ADbngf6Qpg"}
         auto_scale_api = client.AutoscalingV1Api()
         cluster_api = client.CoreV1Api()
         return auto_scale_api, cluster_api
+
     # except Exception as e:
     #     print('error')
-
 
     autoscale_api_instance, cluster_api = authenticate()
 
@@ -185,13 +189,13 @@ def start():
                     print('init attack by POD COUNT on index = {}'.format(index))
                     attack_process = start_on_attack_phase()
 
-
             # Checking HPA every 60 sec
             if index % 10 == 0:
                 name = 'hpa-example-autoscaler'
                 namespace = 'default'
                 try:
-                    api_response = autoscale_api_instance.read_namespaced_horizontal_pod_autoscaler(name, namespace, pretty=True)
+                    api_response = autoscale_api_instance.read_namespaced_horizontal_pod_autoscaler(name, namespace,
+                                                                                                    pretty=True)
                     nodes_count = len(list(cluster_api.list_node().items))
                 except Exception as e:
                     # TODO  -re authenticate
@@ -202,7 +206,8 @@ def start():
                     p.wait()
                     print('ACFTER p wait')
                     autoscale_api_instance, cluster_api = authenticate()
-                    api_response = autoscale_api_instance.read_namespaced_horizontal_pod_autoscaler(name, namespace, pretty=True)
+                    api_response = autoscale_api_instance.read_namespaced_horizontal_pod_autoscaler(name, namespace,
+                                                                                                    pretty=True)
                     nodes_count = len(list(cluster_api.list_node().items))
 
                 status = api_response.status
@@ -244,29 +249,29 @@ def start():
                 ])
 
             w.writerow([
-                index, # time
-                min(round(res_time, 1),5), # probe response time - flatten weird results
+                index,  # time
+                min(round(res_time, 1), 5),  # probe response time - flatten weird results
                 # Attack
                 avg_attack_res_time,
                 mean_attack_res_time,
                 per95_attack_res_time,
                 per90_attack_res_time,
                 # probe
-                (sum(probe_time_tupples) / len(probe_time_tupples)), # total avg res time
+                (sum(probe_time_tupples) / len(probe_time_tupples)),  # total avg res time
                 mean(probe_time_tupples),  # total mea res time
-                np.percentile(np.array(probe_time_tupples),90),
+                np.percentile(np.array(probe_time_tupples), 90),
                 np.percentile(np.array(probe_time_tupples), 95),
                 # HPA INFO
                 current_pods_coount,
                 desire_pod_count,
-                cpu_load/-100, # Normelize
+                cpu_load / -100,  # Normelize
                 nodes_count,
                 (CONFIG['k'] + CONFIG['n']),
                 # is
-                int(is_running_attack)*(-5), # Nonmalize
+                int(is_running_attack) * (-5),  # Nonmalize
                 #
                 last_scale_time
-                ])
+            ])
     print('config - {}'.format(CONFIG))
 
 
