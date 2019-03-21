@@ -2,6 +2,7 @@ import csv
 import datetime
 import errno
 import math
+import sys
 import os
 import subprocess
 from statistics import mean
@@ -113,6 +114,8 @@ def start():
     # except Exception as e:
     #     print('error')
 
+
+    os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = os.path.join(os.path.dirname(sys.argv[0]), "woven-phoenix-234610-96536085aad9.json")
     autoscale_api_instance, cluster_api = authenticate()
 
     probe_time_tupples = []
