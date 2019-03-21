@@ -11,6 +11,9 @@ We've made an effort to adhere to proper Python coding style:
 * PEP 484 -- [Type Hints](https://www.python.org/dev/peps/pep-0484/#suggested-syntax-for-python-2-7-and-straddling-code)
 
 
+# For load testing
+install - npm install -g loadtest
+
 Setting Up A Local Development Environment
 ------------------------------------------
 In order to hit the ground running we recommend using [minikube](https://github.com/kubernetes/minikube), which is a
@@ -118,7 +121,7 @@ If you want to enable cluster autoscaling
 gcloud container clusters create "yoyo-attack" \
 --zone us-central1-a \
 --machine-type "n1-standard-1" \
---num-nodes 5 --enable-autoscaling --min-nodes 8 --max-nodes 15 \
+--num-nodes 5 --enable-autoscaling --min-nodes 6 --max-nodes 15 \
 --metadata disable-legacy-endpoints=true
 
 gcloud container clusters update yoyo-attack --zone us-central1-a --enable-autoscaling --min-nodes 4 --max-nodes 10
@@ -138,6 +141,12 @@ Prod:
 
 `gcloud container clusters get-credentials your_cluster_name --zone=asia-northeast1-a`
 
+project_id = 'woven-phoenix-234610'
+cluster_id = 'yoyo-attack'
+zone = 'us-central1-a'
+
+gcloud config set project woven-phoenix-234610
+gcloud container clusters get-credentials yoyo-attack --zone=us-central1-a
 
 This will point `kubectl` to work with our cluster. Currently, _dev_ and _prod_
 environments are deployed on the same cluster for operational convenience, but

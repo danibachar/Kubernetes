@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
     name: hpa-example
 spec:
-    replicas: 5
+    replicas: 6
     template:
         metadata:
             name: hpa-example
@@ -43,6 +43,6 @@ spec:
         apiVersion: extensions/v1beta1
         kind: Deployment
         name: hpa-example
-    minReplicas: 5
-    maxReplicas: 30
+    minReplicas: 6
+    maxReplicas: 50
     targetCPUUtilizationPercentage: 50

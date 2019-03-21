@@ -37,5 +37,7 @@ class WebsiteUser(HttpLocust):
     # We decided on tihs user behaviour to enable better testing,
     # With this configuration 1 user will produce 1 RPS
     # So if we want to get 1000 RPS, all we need to do is spinn 1000 Users
-    min_wait = 1000
-    max_wait = 1000
+    # min_wait = 1000
+    # max_wait = 1000
+    min_wait = 60000
+    max_wait = 60000
