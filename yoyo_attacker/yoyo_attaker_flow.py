@@ -57,6 +57,7 @@ def send_probe(url):
 
 
 def start_on_attack_phase():
+    print('starting attack')
     CONFIG['n']+=1
     rate = str(CONFIG['r']*CONFIG['k'])
     p = subprocess.Popen(['loadtest', END_POINT, '-t', '100000', '-c', rate, '--rps', rate],
@@ -64,6 +65,7 @@ def start_on_attack_phase():
     return p
 
 def start_regular_load():
+    print('starting regular load')
     r = str(CONFIG['r'])
     p = subprocess.Popen(['loadtest', END_POINT, '-t', '100000', '-c', r, '--rps', r],
                          stdout=subprocess.PIPE, stderr=subprocess.PIPE)
@@ -145,7 +147,9 @@ def start():
         w = csv.writer(f, delimiter=',')
         # Probe test
         for index in range(5000):
+            print('sending probe')
             res_time = send_probe(END_POINT)
+            print('reveived probe')
             # Checking
             if is_running_attack:
                 # Handle attack testing on cool down
@@ -280,6 +284,8 @@ def start():
                 #
                 last_scale_time
             ])
+
+
     print('config - {}'.format(CONFIG))
     if regular_load_process:
         try:
