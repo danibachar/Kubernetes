@@ -206,7 +206,7 @@ def start():
                 name = 'hpa-example-autoscaler'
                 namespace = 'default'
                 try:
-                    print('Updating cluster info - {}'.format(e))
+                    print('Updating cluster info')
                     api_response = autoscale_api_instance.read_namespaced_horizontal_pod_autoscaler(name, namespace,
                                                                                                     pretty=True)
                     nodes_count = len(list(cluster_api.list_node().items))
