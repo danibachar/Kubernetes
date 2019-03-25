@@ -72,7 +72,7 @@ class Attacker(object):
 
     @sleep_and_retry
     @limits(calls=1, period=1)
-    def send_probe(url):
+    def send_probe(self, url):
         response = requests.get(url)
         if response.status_code != 200:
             res_time = 5

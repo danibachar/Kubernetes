@@ -27,10 +27,10 @@ def safe_open(file_name_with_dierctory: str, permision="wb+"):
 
 
 # GLOBALS
-END_POINT = 'http://130.211.200.247:31001/service'
+END_POINT = 'http://35.193.165.198:31001/service'
 CONFIG = {
     'scaled_attack': False,  # A new options - aas noticed in experiments
-    'r': 0,  # Average requests rate per unit time of legitimate clients
+    'r': 5,  # Average requests rate per unit time of legitimate clients
     'k': 4,  # power of attack
     'n': 0,  # Number of attack cycles - Should be dynamic counter every on attack
     't': 0,  # Cycle duration in seconds
@@ -57,11 +57,17 @@ def send_probe(url):
 
 def start_on_attack_phase():
     CONFIG['n']+=1
-    rps = str(CONFIG['k'])
-    p = subprocess.Popen(['loadtest', END_POINT, '-t', '1000', '-c', rps, '--rps', rps],
+    rate = str(CONFIG['r']*CONFIG['k'])
+    p = subprocess.Popen(['loadtest', END_POINT, '-t', '100000', '-c', rate, '--rps', rate],
                          stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     return p
 
+def start_regular_load():
+    CONFIG['n']+=1
+    r = str(CONFIG['r'])
+    p = subprocess.Popen(['loadtest', END_POINT, '-t', '100000', '-c', r, '--rps', r],
+                         stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    return p
 
 def scale_down_is_over_test():
     p = subprocess.Popen(['loadtest', END_POINT, '-t', '5', '-c', '10', '--rps', '10'],
@@ -102,6 +108,8 @@ def start():
     We
     """
 
+    regular_load_process = start_regular_load()
+
     # api_instance = None
     # try:
     def authenticate():
@@ -127,9 +135,9 @@ def start():
     per90_attack_res_time = 0
     per95_attack_res_time = 0
 
-    current_pods_coount = 6
-    nodes_count = 6
-    desire_pod_count = 6
+    current_pods_coount = 2
+    nodes_count = 3
+    desire_pod_count = 2
     cpu_load = 0
     last_scale_time = None
 
@@ -153,7 +161,7 @@ def start():
                 print('mean res time under attack  = {}'.format(mean_attack_res_time))
                 print('95th res time under attack  = {}'.format(per95_attack_res_time))
                 print('90th res time under attack  = {}'.format(per90_attack_res_time))
-                if index > 120 and cpu_load < 40 and current_pods_coount > 6:
+                if index > 120 and cpu_load < 40 and nodes_count > 3:
                     is_running_attack = False
                     if attack_process:
                         try:
@@ -183,7 +191,7 @@ def start():
                 # latest_attack_index
                 # We need to send a small burst of an attack and check for res_time > 2
                 # This is a hack - please use prob above- just need to parse the output of the stdout
-                if current_pods_coount == 6 and index > 50:
+                if nodes_count == 3 and index > 50:
                     is_running_attack = True
                     latest_attack_index = index
                     print('init attack by POD COUNT on index = {}'.format(index))
@@ -264,15 +272,21 @@ def start():
                 # HPA INFO
                 current_pods_coount,
                 desire_pod_count,
-                cpu_load / -100,  # Normelize
+                cpu_load,  # Normelize
                 nodes_count,
-                (CONFIG['k'] + CONFIG['n']),
+                (CONFIG['k'] * CONFIG['n']),
                 # is
-                int(is_running_attack) * (-5),  # Nonmalize
+                int(is_running_attack),  # Nonmalize
                 #
                 last_scale_time
             ])
     print('config - {}'.format(CONFIG))
-
+    if regular_load_process:
+        try:
+            print("killing regular_load_process")
+            regular_load_process.kill()
+            regular_load_process = None
+        except Exception as e:
+            print("kill regular_load_process - {}".format(e))
 
 start()
