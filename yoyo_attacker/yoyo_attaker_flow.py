@@ -206,6 +206,7 @@ def start():
                 name = 'hpa-example-autoscaler'
                 namespace = 'default'
                 try:
+                    print('Updating cluster info - {}'.format(e))
                     api_response = autoscale_api_instance.read_namespaced_horizontal_pod_autoscaler(name, namespace,
                                                                                                     pretty=True)
                     nodes_count = len(list(cluster_api.list_node().items))
@@ -227,6 +228,7 @@ def start():
                 desire_pod_count = status.desired_replicas
                 cpu_load = status.current_cpu_utilization_percentage
                 last_scale_time = status.last_scale_time
+                print('Done Updating cluster info - {}'.format(status))
 
             # Get avarage time of the last x res and see if attack
             probe_time_tupples.append(res_time)
