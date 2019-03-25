@@ -64,7 +64,6 @@ def start_on_attack_phase():
     return p
 
 def start_regular_load():
-    CONFIG['n']+=1
     r = str(CONFIG['r'])
     p = subprocess.Popen(['loadtest', END_POINT, '-t', '100000', '-c', r, '--rps', r],
                          stdout=subprocess.PIPE, stderr=subprocess.PIPE)
@@ -227,7 +226,7 @@ def start():
 
             # Get avarage time of the last x res and see if attack
             probe_time_tupples.append(res_time)
-            CONFIG['r'] = sum(probe_time_tupples) / len(probe_time_tupples)
+            # CONFIG['r'] = sum(probe_time_tupples) / len(probe_time_tupples)
             print("res time in seconds - {}, index = {}".format(res_time, index))
             if index == 0:
                 # Add headers
