@@ -10,6 +10,10 @@ npm install -g loadtest
 python yoyo_attaker_flow.py
 ```
 
+```crontab
+*/03 * * * nohup python3 -u /opt/Kubernetes/yoyo_attacker/yoyo_attaker_flow.py >> attacker.$(date +%Y-%m-%d_%H:%M).log 2>&1 &
+```
+
 
 Other options for running load testing
 
