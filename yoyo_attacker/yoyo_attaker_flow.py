@@ -28,7 +28,7 @@ def safe_open(file_name_with_dierctory: str, permision="wb+"):
 
 
 # GLOBALS
-END_POINT = 'http://35.193.165.198:31001/service'
+END_POINT = 'http://35.238.129.124:31001/service/1000'
 CONFIG = {
     'scaled_attack': False,  # A new options - aas noticed in experiments
     'r': 5,  # Average requests rate per unit time of legitimate clients
