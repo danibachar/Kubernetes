@@ -2,9 +2,9 @@ import csv
 import datetime
 import errno
 import math
-import sys
 import os
 import subprocess
+import sys
 from statistics import mean
 
 import numpy as np
@@ -58,11 +58,12 @@ def send_probe(url):
 
 def start_on_attack_phase():
     print('starting attack')
-    CONFIG['n']+=1
-    rate = str(CONFIG['r']*CONFIG['k'])
+    CONFIG['n'] += 1
+    rate = str(CONFIG['r'] * CONFIG['k'])
     p = subprocess.Popen(['loadtest', END_POINT, '-t', '100000', '-c', rate, '--rps', rate],
                          stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     return p
+
 
 def start_regular_load():
     print('starting regular load')
@@ -70,6 +71,7 @@ def start_regular_load():
     p = subprocess.Popen(['loadtest', END_POINT, '-t', '100000', '-c', r, '--rps', r],
                          stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     return p
+
 
 def scale_down_is_over_test():
     p = subprocess.Popen(['loadtest', END_POINT, '-t', '5', '-c', '10', '--rps', '10'],
@@ -123,8 +125,8 @@ def start():
     # except Exception as e:
     #     print('error')
 
-
-    os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = os.path.join(os.path.dirname(sys.argv[0]), "woven-phoenix-234610-96536085aad9.json")
+    os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = os.path.join(os.path.dirname(sys.argv[0]),
+                                                                "woven-phoenix-234610-96536085aad9.json")
     autoscale_api_instance, cluster_api = authenticate()
 
     probe_time_tupples = []
@@ -137,9 +139,10 @@ def start():
     per90_attack_res_time = 0
     per95_attack_res_time = 0
 
-    current_pods_coount = 2
-    nodes_count = 3
-    desire_pod_count = 2
+    nodes_count = 0
+    desire_pod_count = 0
+    current_pods_count = 0
+    active_pods_count = 0
     cpu_load = 0
     last_scale_time = None
 
@@ -210,6 +213,9 @@ def start():
                     api_response = autoscale_api_instance.read_namespaced_horizontal_pod_autoscaler(name, namespace,
                                                                                                     pretty=True)
                     nodes_count = len(list(cluster_api.list_node().items))
+                    active_pods_count = len(
+                        [pod for pod in cluster_api.list_pod_for_all_namespaces(label_selector='app=hpa-example').items
+                         if pod.status.phase == 'Running'])
                 except Exception as e:
                     # TODO  -re authenticate
                     print('error trying to authenticate - {}'.format(e))
@@ -222,9 +228,12 @@ def start():
                     api_response = autoscale_api_instance.read_namespaced_horizontal_pod_autoscaler(name, namespace,
                                                                                                     pretty=True)
                     nodes_count = len(list(cluster_api.list_node().items))
+                    active_pods_count = len(
+                        [pod for pod in cluster_api.list_pod_for_all_namespaces(label_selector='app=hpa-example').items
+                         if pod.status.phase == 'Running'])
 
                 status = api_response.status
-                current_pods_coount = status.current_replicas
+                current_pods_count = status.current_replicas
                 desire_pod_count = status.desired_replicas
                 cpu_load = status.current_cpu_utilization_percentage
                 last_scale_time = status.last_scale_time
@@ -250,7 +259,8 @@ def start():
                     'probe packet 95th percentile response time',
                     'probe packet 90th percentile response time',
                     # HPA info
-                    'current_pods_coount',
+                    'current_pods_count',
+                    'active_pods_count',
                     'desire_pod_count',
                     'cpu_load',
                     'node_count',
@@ -276,9 +286,10 @@ def start():
                 np.percentile(np.array(probe_time_tupples), 90),
                 np.percentile(np.array(probe_time_tupples), 95),
                 # HPA INFO
-                current_pods_coount,
+                current_pods_count,
+                active_pods_count,
                 desire_pod_count,
-                cpu_load,  # Normelize
+                cpu_load,  # Normalize
                 nodes_count,
                 (CONFIG['k'] * CONFIG['n']),
                 # is
@@ -286,7 +297,6 @@ def start():
                 #
                 last_scale_time
             ])
-
 
     print('config - {}'.format(CONFIG))
     if regular_load_process:
@@ -296,5 +306,6 @@ def start():
             regular_load_process = None
         except Exception as e:
             print("kill regular_load_process - {}".format(e))
+
 
 start()
