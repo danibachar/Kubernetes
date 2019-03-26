@@ -152,7 +152,7 @@ def start():
         for index in range(5000):
             print('sending probe')
             res_time = send_probe(END_POINT)
-            print('reveived probe')
+            print('revived probe')
             # Checking
             if is_running_attack:
                 # Handle attack testing on cool down
@@ -237,7 +237,7 @@ def start():
                 desire_pod_count = status.desired_replicas
                 cpu_load = status.current_cpu_utilization_percentage
                 last_scale_time = status.last_scale_time
-                print('Done Updating cluster info - {}'.format(status))
+                print('Done Updating cluster info - {}\nactive: {}'.format(status, active_pods_count))
 
             # Get avarage time of the last x res and see if attack
             probe_time_tupples.append(res_time)
