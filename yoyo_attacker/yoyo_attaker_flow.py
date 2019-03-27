@@ -28,7 +28,7 @@ def safe_open(file_name_with_dierctory: str, permision="wb+"):
 
 
 # GLOBALS
-END_POINT = 'http://35.238.129.124:31001/service/1000'
+END_POINT = 'http://104.154.242.79:31001/service/1000'
 CONFIG = {
     'scaled_attack': False,  # A new options - aas noticed in experiments
     'r': 5,  # Average requests rate per unit time of legitimate clients
@@ -55,7 +55,7 @@ def send_probe(url):
         res_time = response.elapsed.total_seconds()
     return res_time
 
-
+# loadtest 'http://104.154.242.79:31001/service/1000' -t 1000 -c 3 --rps 3
 def start_on_attack_phase():
     print('starting attack')
     CONFIG['n'] += 1
@@ -180,7 +180,7 @@ def start():
                 print('90th res time under attack  = {}'.format(per90_attack_res_time))
                 threshold = latest_attack_index+1000
                 hard_reset_trigger = index > threshold
-                if (index > 120 and cpu_load < 40 and nodes_count > 3) or hard_reset_trigger:
+                if (index > 120 and cpu_load <= 56 and nodes_count > 3) or hard_reset_trigger:
                     is_running_attack = False
                     if attack_process:
                         try:
