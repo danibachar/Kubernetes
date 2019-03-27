@@ -125,18 +125,9 @@ def start():
 
         return auto_scale_api, cluster_api
 
-    # except Exception as e:
-    #     print('error')
-
-# <<<<<<< Updated upstream
     os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = os.path.join(os.path.dirname(sys.argv[0]),
                                                                 "woven-phoenix-234610-96536085aad9.json")
-# =======
-#
-#     # os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = os.path.join(os.path.dirname(sys.argv[0]), "woven-phoenix-234610-96536085aad9.json")
-#     print(os.path.join(os.path.dirname(sys.argv[0]), "woven-phoenix-234610-96536085aad9.json"))
-#     print(os.path.join(os.path.expanduser('~')))
-# >>>>>>> Stashed changes
+
     autoscale_api_instance, cluster_api = authenticate()
 
     probe_time_tupples = []
@@ -160,9 +151,15 @@ def start():
         w = csv.writer(f, delimiter=',')
         # Probe test
         for index in range(5000):
-            print('sending probe')
-            res_time = send_probe(END_POINT)
-            print('revived probe')
+
+            try:
+                print('sending probe')
+                res_time = send_probe(END_POINT)
+                print('revived probe')
+            except Exception as e:
+                print('retry - sending probe - {}'.format(e))
+                res_time = send_probe(END_POINT)
+                print('retry - revived probe')
             # Checking
             if is_running_attack:
                 # Handle attack testing on cool down
