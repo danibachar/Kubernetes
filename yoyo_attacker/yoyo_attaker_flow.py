@@ -28,11 +28,11 @@ def safe_open(file_name_with_dierctory: str, permision="wb+"):
 
 
 # GLOBALS
-END_POINT = 'http://35.239.228.131:31001/service/1000'
+END_POINT = 'http://35.239.228.131:31001/service/10000'
 CONFIG = {
     'scaled_attack': False,  # A new options - aas noticed in experiments
-    'r': 5,  # Average requests rate per unit time of legitimate clients
-    'k': 6,  # power of attack
+    'r': 3,  # Average requests rate per unit time of legitimate clients
+    'k': 7,  # power of attack
     'n': 0,  # Number of attack cycles - Should be dynamic counter every on attack
     't': 0,  # Cycle duration in seconds
     't_on': 80,
@@ -55,7 +55,7 @@ def send_probe(url):
         res_time = response.elapsed.total_seconds()
     return res_time
 
-# loadtest 'http://104.154.242.79:31001/service/1000' -t 1000 -c 3 --rps 3
+# loadtest 'http://35.239.228.131:31001/service/10000' -t 1000 -c 4 --rps 4
 def start_on_attack_phase():
     print('starting attack')
     CONFIG['n'] += 1
@@ -150,7 +150,7 @@ def start():
     with safe_open(csv_file_name, 'w') as f:
         w = csv.writer(f, delimiter=',')
         # Probe test
-        for index in range(5000):
+        for index in range(10000):
 
             try:
                 print('sending probe')
@@ -177,7 +177,7 @@ def start():
                 print('90th res time under attack  = {}'.format(per90_attack_res_time))
                 threshold = latest_attack_index+1000
                 hard_reset_trigger = index > threshold
-                if (index > 120 and cpu_load <= 56 and nodes_count > 3) or hard_reset_trigger:
+                if (index > 120 and cpu_load <= 56 and nodes_count > 3):
                     is_running_attack = False
                     if attack_process:
                         try:
@@ -213,7 +213,7 @@ def start():
                     print('init attack by POD COUNT on index = {}'.format(index))
                     attack_process = start_on_attack_phase()
 
-            if index % 10 == 0:
+            if index % 9 == 0:
                 name = 'hpa-example-autoscaler'
                 namespace = 'default'
                 try:
@@ -249,11 +249,8 @@ def start():
 
             # Get avarage time of the last x res and see if attack
             probe_time_tupples.append(res_time)
-            # CONFIG['r'] = sum(probe_time_tupples) / len(probe_time_tupples)
-            print("res time in seconds - {}, index = {}".format(res_time, index))
-            if index == 0:
-                # Add headers
-                w.writerow([
+
+            headers = [
                     'time',
                     'current response time',
                     # Under attack
@@ -274,13 +271,11 @@ def start():
                     'node_count',
                     'current_power_off_attack',
                     #
-                    'is running attach',
-                    #
-                    'last_scale_time',
+                    'is running attach'
 
-                ])
+                ]
 
-            w.writerow([
+            stats = [
                 index,  # time
                 min(round(res_time, 1), 5),  # probe response time - flatten weird results
                 # Attack
@@ -299,12 +294,20 @@ def start():
                 desire_pod_count,
                 cpu_load,  # Normalize
                 nodes_count,
-                (CONFIG['k'] * CONFIG['n']),
+                (CONFIG['k']),
                 # is
                 int(is_running_attack),  # Nonmalize
                 #
                 last_scale_time
-            ])
+            ]
+            if index == 0: # Add headers
+                w.writerow(headers)
+
+            w.writerow(stats)
+
+            print(dict(zip(headers, stats)))
+
+
 
     print('config - {}'.format(CONFIG))
     if regular_load_process:
