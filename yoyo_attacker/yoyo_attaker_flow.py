@@ -15,7 +15,7 @@ from ratelimit import limits, sleep_and_retry
 dir_path = os.path.dirname(os.path.realpath(__file__))
 csv_file_name = str(dir_path) + "/{}.table.csv".format(str(datetime.datetime.now()))
 
-
+# Helper Functions
 def safe_open(file_name_with_dierctory: str, permision="wb+"):
     if not os.path.exists(os.path.dirname(file_name_with_dierctory)):
         try:
@@ -26,13 +26,26 @@ def safe_open(file_name_with_dierctory: str, permision="wb+"):
 
     return open(file_name_with_dierctory, permision)
 
+def get_power_of_attack():
+    if ATTACK_TYPE == 1:
+        return 6
+    return 8
 
 # GLOBALS
+'''
+    The Endpoint to attack!
+'''
 END_POINT = 'http://35.239.228.131:31001/service/10000'
+'''
+    1 - Experiment 1, where we attack without trigger the Cluster Autosccaling
+    2 - Experiment 2 - Naive
+    3 - Experiment 2 - Sophisticated
+'''
+ATTACK_TYPE = 1
 CONFIG = {
     'scaled_attack': False,  # A new options - aas noticed in experiments
     'r': 3,  # Average requests rate per unit time of legitimate clients
-    'k': 7,  # power of attack
+    'k': get_power_of_attack(),  # power of attack
     'n': 0,  # Number of attack cycles - Should be dynamic counter every on attack
     't': 0,  # Cycle duration in seconds
     't_on': 80,
@@ -42,7 +55,6 @@ CONFIG = {
     'i_down': 0,  # int, Threshold interval for scale-down in seconds. - NOT CONTROLED IN KUBERNETES
     'w_up': 0  #
 }
-
 
 # Probe packet
 @sleep_and_retry
@@ -88,34 +100,8 @@ def scale_down_is_over_test():
 
 
 def start():
-    """
-    Attack Flow:
-    Our humble cluster contains 5 nodes, aorund 1 node is dedicated for Kubernetes internal services 
-    (pods which might spread ammoung different nodes)
-    And with a minimum of 2 pods to be able to hold some load
-    
-    Nodes hold 1 or more pods
-    Pod holds 1 or more containers (Apps) in our case each pod equals 1 app server
-    
-    Each pod is configured to consume 200m CPU out of the 1 CPU each node is get    
-    
-    We configure the experiment time as 5 minutes (300 seconds) 
-    Which we will send a stead stream of 1 probe packet to follow the response time each 5 seconds
-    This `Steady State` consumes 25% of the resources we have in the cluster 
-    (remember at that state we only ahve 2 pods running
-    
-    
-    The attack kiks in after 150 cycles and produces 1 RPS for 1 minute 
-    
-    GKE the control plane is not accessible, which means we cannot control the scale/cool down delay threshold 
-     
-    We
-    """
-
     regular_load_process = start_regular_load()
 
-    # api_instance = None
-    # try:
     def authenticate():
         config.load_kube_config(config_file=os.path.join(os.path.expanduser('~'), '.kube/config'))
         client.configuration.api_key = {
@@ -171,17 +157,13 @@ def start():
                 avg_attack_res_time = sum(probs_times_under_attack) / sample_count
                 per95_attack_res_time = np.percentile(np.array(probs_times_under_attack), 95)
                 per90_attack_res_time = np.percentile(np.array(probs_times_under_attack), 90)
-                print('avg res time under attack  = {}'.format(avg_attack_res_time))
-                print('mean res time under attack  = {}'.format(mean_attack_res_time))
-                print('95th res time under attack  = {}'.format(per95_attack_res_time))
-                print('90th res time under attack  = {}'.format(per90_attack_res_time))
                 threshold = latest_attack_index+1000
                 hard_reset_trigger = index > threshold
-                if (index > 120 and cpu_load <= 56 and nodes_count > 3):
+                if (index > 120 and cpu_load <= 56 and active_pods_count > 2):
                     is_running_attack = False
                     if attack_process:
                         try:
-                            print("killing attack process - {}".format(attack_process))
+                            print("killing attack process")
                             attack_process.kill()
                             attack_process = None
                         except Exception as e:
