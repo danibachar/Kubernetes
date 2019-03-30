@@ -92,10 +92,6 @@ def scale_down_is_over_test():
     output = str(lines[-1]).split(' ')
     ms_index = output.index('ms')
     res = float(output[ms_index - 1]) / 1000
-    # print('scale prob longest time {}'.format(res))/
-    print('scale prob longest time {}'.format(res))
-    # for line in iter(p.stdout.readline, b''):
-    #     print(line)
     return math.floor(res) >= 2
 
 
