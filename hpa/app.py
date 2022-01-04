@@ -17,7 +17,7 @@ CORS(app)
 def health():
     return 'OK'
 
-@app.route('/service/<power>', methods=['GET'])
+@app.route('/<power>', methods=['GET'])
 def default_get(power):
     y = 2**2**2**2**2
     for _ in range(10*int(power)):
