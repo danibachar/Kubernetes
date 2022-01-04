@@ -7,7 +7,7 @@ import sys
 APP_ROOT = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.dirname(APP_ROOT))
 
-from flask import Flask
+from flask import Flask, request
 from flask_cors import CORS
 
 app = Flask(__name__)
@@ -17,8 +17,9 @@ CORS(app)
 def health():
     return 'OK'
 
-@app.route('/<power>', methods=['GET'])
+@app.route('/', methods=['GET'])
 def default_get(power):
+    power = request.args.get('power', 10)
     y = 2**2**2**2**2
     for _ in range(10*int(power)):
         pass
