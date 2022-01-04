@@ -3,8 +3,7 @@ kind: Ingress
 metadata:
   name: api
   labels:
-    tier: backend
-    component: app-server
+    app: load-test
   annotations:
     kubernetes.io/ingress.global-static-ip-name: api-lnstechnologies
     kubernetes.io/ingress.enable-cors: "true"
