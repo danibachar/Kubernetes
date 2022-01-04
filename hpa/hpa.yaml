@@ -23,7 +23,7 @@ spec:
           "-p", "8080",
           "-a", "127.0.0.1:8081",
           "-s", "api.lnstechnologies.com",
-          "-v", "2022-01-04r6",
+          "-v", "2022-01-04r7",
           "-n", "/etc/nginx/custom/nginx.conf",
         ]
         ports:
