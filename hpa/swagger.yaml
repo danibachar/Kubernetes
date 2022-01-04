@@ -43,24 +43,6 @@ paths:
           description: Bad
           schema:
             $ref: '#/definitions/generalResponseError'
-  /load/service:
-    get:
-      description: load s
-      security: []
-      operationId: load s
-      produces:
-        - application/json
-      consumes:
-        - application/json
-      responses:
-        200:
-          description: Good
-          schema:
-            $ref: '#/definitions/tmpResponseSuccess'
-        400:
-          description: Bad
-          schema:
-            $ref: '#/definitions/generalResponseError'
 definitions:
   generalResponseError:
     type: object
