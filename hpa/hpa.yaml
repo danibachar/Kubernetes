@@ -18,12 +18,12 @@ spec:
             name: esp-nginx
       containers:
       - image: gcr.io/endpoints-release/endpoints-runtime:1.3
-        name: translate-microsvc-esp
+        name: load-test-esp
         args: [
           "-p", "8080",
           "-a", "127.0.0.1:8081",
           "-s", "api.lnstechnologies.com",
-          "-v", "2019-02-14r8",
+          "-v", "2022-01-04r3",
           "-n", "/etc/nginx/custom/nginx.conf",
         ]
         ports:
