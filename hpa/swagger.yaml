@@ -1,10 +1,3 @@
-securityDefinitions:
-  api_key:
-    type: 'apiKey'
-    name: 'key'
-    in: 'query'
-security:
-- api_key: []
 swagger: '2.0'
 info:
   title: Test
@@ -20,26 +13,31 @@ x-google-endpoints:
 basePath: /v1
 consumes:
   - application/json
+  - application/x-www-form-urlencoded
 schemes:
   - http
 produces:
   - application/json
+  - application/x-www-form-urlencoded
 paths:
   /load:
     get:
-      description: test opencv version on node
-      operationId: opencv_version
+      description: load
+      security: []
+      operationId: load
       produces:
         - application/json
+        - application/x-www-form-urlencoded
       consumes:
         - application/json
+        - application/x-www-form-urlencoded
       responses:
         200:
           description: Good
           schema:
             $ref: '#/definitions/tmpResponseSuccess'
         400:
-          description: Bad s
+          description: Bad
           schema:
             $ref: '#/definitions/generalResponseError'
 definitions:
