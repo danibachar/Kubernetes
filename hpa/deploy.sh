@@ -1,6 +1,6 @@
 #!/bin/bash
 
-gcloud container clusters get-credentials cluster1 --zone=us-central1-a
+gcloud container clusters get-credentials microsvc-us --zone=us-central1-a
 gcloud endpoints services deploy swagger.yaml
 
 kubectl apply -f ingress.yaml
