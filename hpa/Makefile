@@ -13,8 +13,8 @@ cleanup:
 	minikube stop
 
 build:
-	docker build -f Dockerfile -t gcr.io/independent-bay-250811/app:latest ..
-	docker push gcr.io/independent-bay-250811/app:latest
+	docker build -f Dockerfile -t danibachar/load-test:latest ..
+	docker push danibachar/load-test:latest
 
 deploy: build
 	kubectl apply -f hpa.yaml

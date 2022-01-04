@@ -1,0 +1,57 @@
+securityDefinitions:
+  api_key:
+    type: 'apiKey'
+    name: 'key'
+    in: 'query'
+security:
+- api_key: []
+swagger: '2.0'
+info:
+  title: Test
+  description: Test
+  version: '1.0.0'
+  contact:
+    name: API Support
+    email: daniel@lnstechnologies.com
+host: api.lnstechnologies.com
+x-google-endpoints:
+    - name: api.lnstechnologies.com
+      allowCors: true
+basePath: /v1
+consumes:
+  - application/json
+schemes:
+  - http
+produces:
+  - application/json
+paths:
+  /load-test:
+    get:
+      description: test opencv version on node
+      operationId: opencv_version
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      responses:
+        200:
+          description: Good
+          schema:
+            $ref: '#/definitions/tmpResponseSuccess'
+        400:
+          description: Bad s
+          schema:
+            $ref: '#/definitions/generalResponseError'
+definitions:
+  generalResponseError:
+    type: object
+    description: Error object with error string
+    properties:
+      message:
+        type: string
+  tmpResponseSuccess:
+    type: object
+    description: tmp for swagger deploy
+    properties:
+      message:
+        type: string
