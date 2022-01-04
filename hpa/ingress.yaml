@@ -6,7 +6,7 @@ metadata:
     tier: backend
     component: app-server
   annotations:
-    kubernetes.io/ingress.global-static-ip-name: "api-lnstechnologies"
+    kubernetes.io/ingress.global-static-ip-name: api-lnstechnologies
     kubernetes.io/ingress.enable-cors: "true"
     kubernetes.io/ingress.allow-http: "true" # should be changed to no on production
 spec:
@@ -17,6 +17,6 @@ spec:
         pathType: Prefix
         backend:
           service: 
-            name: load-test-microsvc
+            name: load-test
             port: 
               number: 80
