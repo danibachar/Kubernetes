@@ -16,6 +16,6 @@ spec:
         pathType: Prefix
         backend:
           service: 
-            name: load-test
+            name: load-test-svc
             port: 
               number: 80
