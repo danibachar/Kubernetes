@@ -13,7 +13,6 @@ spec:
   - http:
       paths:
       - path: /v1/load/*
-        pathType: ImplementationSpecific
         backend:
           service: 
             name: load-test-svc
