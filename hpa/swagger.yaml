@@ -20,12 +20,10 @@ x-google-endpoints:
 basePath: /v1
 consumes:
   - application/json
-  - application/x-www-form-urlencoded
 schemes:
   - http
 produces:
   - application/json
-  - application/x-www-form-urlencoded
 paths:
   /load:
     get:
@@ -35,7 +33,7 @@ paths:
       produces:
         - application/json
       consumes:
-        - application/x-www-form-urlencoded
+        - application/json
       responses:
         200:
           description: Good
@@ -53,7 +51,7 @@ paths:
       produces:
         - application/json
       consumes:
-        - application/x-www-form-urlencoded
+        - application/json
       responses:
         200:
           description: Good
