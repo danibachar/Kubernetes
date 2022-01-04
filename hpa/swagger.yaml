@@ -17,7 +17,7 @@ host: api.lnstechnologies.com
 x-google-endpoints:
     - name: api.lnstechnologies.com
       allowCors: true
-basePath: /
+basePath: /v1
 consumes:
   - application/json
 schemes:
@@ -25,7 +25,7 @@ schemes:
 produces:
   - application/json
 paths:
-  /:
+  /load:
     get:
       description: test opencv version on node
       operationId: opencv_version

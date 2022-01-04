@@ -5,12 +5,17 @@ metadata:
   labels:
     app: load-test
   annotations:
-    kubernetes.io/ingress.global-static-ip-name: api-lnstechnologies
+    kubernetes.io/ingress.global-static-ip-name: "api-lnstechnologies"
     kubernetes.io/ingress.enable-cors: "true"
     kubernetes.io/ingress.allow-http: "true" # should be changed to no on production
 spec:
-  defaultBackend:
-    service:
-      name: load-test-svc
-      port:
-        number: 80
+  rules:
+  - http:
+      paths:
+      - path: /v1/load/*
+        pathType: Prefix
+        backend:
+          service: 
+            name: load-test-svc
+            port: 
+              number: 80
