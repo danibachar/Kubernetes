@@ -4,6 +4,9 @@ metadata:
   name: load-test
 spec:
   replicas: 3
+  selector:
+    matchLabels:
+        app: load-test
   template:
     metadata:
       labels:
