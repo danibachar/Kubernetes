@@ -1,4 +1,4 @@
-apiVersion: extensions/v1beta1
+apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: api
@@ -14,6 +14,9 @@ spec:
   - http:
       paths:
       - path: /v1/test/*
+        pathType: Prefix
         backend:
-          serviceName: load-test-microsvc
-          servicePort: 80
+          service: 
+            name: load-test-microsvc
+            port: 
+              number: 80
